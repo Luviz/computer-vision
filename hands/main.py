@@ -21,12 +21,7 @@ def main(cam_src=None):
     run = True
     _, last_frame = cap.read()
 
-    buttonArray = [
-        draw_button((10, 0 + 10), (80, 0 + 40)),
-        draw_button((10, 40 + 10), (80, 40 + 40)),
-        draw_button((10, 80 + 10), (80, 80 + 40)),
-        draw_button((10, 120 + 10), (80, 120 + 40)),
-    ]
+    buttonArray = [draw_button((10, i + 10), (80, i + 40)) for i in range(0, 121, 40)]
 
     try:
         while run:
@@ -42,7 +37,7 @@ def main(cam_src=None):
                     hd = hands.get_handData()
 
                     for data in hd:
-                        drawHands(frame, data)
+                        # drawHands(frame, data)
                         index_finger = landmarkCoored(data.landmarks[8], w, h)
 
                         for btn in buttonArray:
@@ -178,5 +173,5 @@ if __name__ == "__main__":
     ip = "192.168.50.175"
     port = "8080"
     ip_cam_url = f"http://{usr}:{pas}@{ip}:{port}/video"
-    # main()
-    main(ip_cam_url)
+    main()
+    # main(ip_cam_url)
