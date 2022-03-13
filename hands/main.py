@@ -3,7 +3,12 @@ import cv2 as cv
 import mediapipe.python.solutions.hands as mpHands
 import mediapipe.python.solutions.drawing_utils as mpdUtils
 
-hands = mpHands.Hands()
+# from hands. import HandProcessor
+from handProtocol import Processed_hands
+from handProcessor import HandProcessor
+
+
+hands = HandProcessor(min_detection_confidence=0.7)
 
 
 def main(cam_src=None):
@@ -21,68 +26,33 @@ def main(cam_src=None):
             has_frame, frame = cap.read()
 
             if has_frame:
-                processed_hands = hands.process(frame[:, :, ::-1])
+                frame = cv.flip(frame, 1)
+                w, h, c = frame.shape
+                processed_hands = hands.proc(frame[:, :, ::-1])
+                # print(hands.get_handedness())
                 if processed_hands.multi_hand_landmarks:
-                    for lm in processed_hands.multi_hand_landmarks:
-                        color = (255, 0, 0)
-                        (width, height, _) = frame.shape
-                        dist = getLandMarkDistance(
-                            lm.landmark[4], lm.landmark[8], width, height
+                    # drawHands(processed_hands)
+                    hd = hands.get_handData()
+                    for data in hd:
+                        label = data.classification.label
+                        lm = data.landmarks
+
+                        mpdUtils.draw_landmarks(
+                            image=frame,
+                            landmark_list=data.multi_hand_landmarks,
+                            landmark_drawing_spec=None,
+                            connections=mpHands.HAND_CONNECTIONS,
                         )
-                        cv.line(
+
+                        drawLandmark(frame, lm[4], (0, 100, 200), thickness=-1)
+                        drawLandmark(frame, lm[8], (200, 100, 0), thickness=-1)
+
+                        drawText(
                             frame,
-                            pt1=landmarkCoored(lm.landmark[4], width, height),
-                            pt2=landmarkCoored(lm.landmark[8], width, height),
-                            color=(100, 255, 250),
-                            thickness=2,
+                            label,
+                            landmarkCoored(lm[0], w, h),
+                            bg_color=(0, 0, 200),
                         )
-
-                        cv.putText(
-                            img=frame,
-                            text=f"{round(dist, 2)}",
-                            org=landmarkCoored(lm.landmark[4], width, height),
-                            fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                            color=(110, 110, 110),
-                            fontScale=1,
-                            thickness=4,
-                        )
-
-                        cv.putText(
-                            img=frame,
-                            text=f"{round(dist, 2)}",
-                            org=landmarkCoored(lm.landmark[4], width, height),
-                            fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                            color=(0, 200, 0),
-                            fontScale=1,
-                            thickness=1,
-                        )
-
-                        drawLandmark(frame, width, height, lm.landmark[4], (255, 0, 0))
-                        drawLandmark(frame, width, height, lm.landmark[8], (0, 255, 0))
-                        drawLandmark(frame, width, height, lm.landmark[12], (0, 0, 255))
-                        drawLandmark(
-                            frame,
-                            width,
-                            height,
-                            lm.landmark[16],
-                            (255, 0, 255),
-                            radius=3,
-                        )
-                        drawLandmark(
-                            frame,
-                            width,
-                            height,
-                            lm.landmark[20],
-                            (255, 255, 0),
-                            radius=3,
-                        )
-
-                        # mpdUtils.draw_landmarks(
-                        #     image=frame,
-                        #     landmark_list=lm,
-                        #     landmark_drawing_spec=None,
-                        #     connections=mpHands.HAND_CONNECTIONS,
-                        # )
 
                 cv.imshow("main", frame)
 
@@ -102,11 +72,68 @@ def main(cam_src=None):
         print("quiting")
 
 
+def draw_distance(image, lm1, lm2):
+    (w, h, c) = image.shape
+    color1 = (200, 0, 0)
+    color2 = (0, 200, 0)
+
+    dist = getLandMarkDistance(lm1, lm2, w, h)
+    pt1 = landmarkCoored(lm1, w, h)
+    pt2 = landmarkCoored(lm2, w, h)
+
+    drawText(image, str(int(dist)), pt1, offsetText=20)
+
+    cv.line(image, pt1, pt2, color=(100, 255, 250), thickness=2)
+
+    drawLandmark(image, lm1, color1)
+    drawLandmark(image, lm2, color2)
+
+
+def drawText(
+    img, text, org, fg_color=(0, 0, 0), bg_color=(170, 170, 170), offsetText=None
+):
+    if offsetText != None:
+        org = (org[0] + offsetText, org[1] - offsetText)
+
+    cv.putText(  # textout line
+        img,
+        text,
+        org,
+        fontFace=cv.FONT_HERSHEY_SIMPLEX,
+        color=bg_color,
+        fontScale=1,
+        thickness=5,
+    )
+
+    cv.putText(
+        img,
+        text,
+        org,
+        fontFace=cv.FONT_HERSHEY_SIMPLEX,
+        color=fg_color,
+        fontScale=1,
+        thickness=2,
+    )
+
+
+def drawHands(processed_hands: Processed_hands):
+    try:
+        # print(processed_hands._fields)
+        print("______________________________________")
+        print(processed_hands.multi_handedness)
+        # print(dir(processed_hands.multi_hand_landmarks[0]))
+        # print([d for d in dir(processed_hands.multi_hand_landmarks[0]) if "_" not in d])
+        # print([d for d in dir(processed_hands)) if "_" not in d])
+    except Exception as e:
+        print("boo!", type(e))
+
+
 def landmarkCoored(landmark, width, height):
     return (int(landmark.x * height), int(landmark.y * width))
 
 
-def drawLandmark(frame, width, height, landmark, color, radius=8, thickness=4):
+def drawLandmark(frame, landmark, color, radius=8, thickness=4):
+    width, height, c = frame.shape
     x = landmark.x * height
     y = landmark.y * width
     cv.circle(frame, (int(x), int(y)), radius, color, thickness)
