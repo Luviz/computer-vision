@@ -22,13 +22,14 @@ def main(cam_src=None):
     _, last_frame = cap.read()
     try:
         while run:
-            c = c + 1
             has_frame, frame = cap.read()
 
             if has_frame:
+                btn1 = draw_button((10, 10), (80, 40))
                 frame = cv.flip(frame, 1)
                 w, h, c = frame.shape
                 processed_hands = hands.proc(frame[:, :, ::-1])
+                btn1Active = False
                 # print(hands.get_handedness())
                 if processed_hands.multi_hand_landmarks:
                     # drawHands(processed_hands)
@@ -46,6 +47,23 @@ def main(cam_src=None):
 
                         drawLandmark(frame, lm[4], (0, 100, 200), thickness=-1)
                         drawLandmark(frame, lm[8], (200, 100, 0), thickness=-1)
+
+                        index_finger = landmarkCoored(lm[8], w, h)
+
+                        # if inBound(index_finger, {"pt1": (10, 10), "pt2": (80, 40)}):
+                        #     print("on")
+                        #     btn1Active = True
+                        btn1(
+                            frame,
+                            inBound(index_finger, {"pt1": (10, 10), "pt2": (80, 40)}),
+                        )
+
+                        drawText(
+                            frame,
+                            str(index_finger),
+                            landmarkCoored(lm[4], w, h),
+                            bg_color=(0, 0, 200),
+                        )
 
                         drawText(
                             frame,
@@ -70,6 +88,19 @@ def main(cam_src=None):
 
     except KeyboardInterrupt as e:
         print("quiting")
+
+
+def inBound(pt, box):
+    return (box["pt1"][0] < pt[0] < box["pt2"][0]) and (
+        box["pt1"][1] < pt[1] < box["pt2"][1]
+    )
+
+
+def draw_button(pt1, pt2, color=(220, 220, 220), color_a=(126, 225, 126)):
+    def draw(image, active):
+        cv.rectangle(image, pt1, pt2, color=(color_a if active else color), thickness=3)
+
+    return draw
 
 
 def draw_distance(image, lm1, lm2):
@@ -151,5 +182,5 @@ if __name__ == "__main__":
     ip = "192.168.50.175"
     port = "8080"
     ip_cam_url = f"http://{usr}:{pas}@{ip}:{port}/video"
-    main()
-    # main(ip_cam_url)
+    # main()
+    main(ip_cam_url)
