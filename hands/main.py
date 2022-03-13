@@ -20,6 +20,14 @@ def main(cam_src=None):
     key = 0
     run = True
     _, last_frame = cap.read()
+
+    buttonArray = [
+        draw_button((10, 0 + 10), (80, 0 + 40)),
+        draw_button((10, 40 + 10), (80, 40 + 40)),
+        draw_button((10, 80 + 10), (80, 80 + 40)),
+        draw_button((10, 120 + 10), (80, 120 + 40)),
+    ]
+
     try:
         while run:
             has_frame, frame = cap.read()
@@ -50,13 +58,8 @@ def main(cam_src=None):
 
                         index_finger = landmarkCoored(lm[8], w, h)
 
-                        # if inBound(index_finger, {"pt1": (10, 10), "pt2": (80, 40)}):
-                        #     print("on")
-                        #     btn1Active = True
-                        btn1(
-                            frame,
-                            inBound(index_finger, {"pt1": (10, 10), "pt2": (80, 40)}),
-                        )
+                        for btn in buttonArray:
+                            btn(frame, index_finger)
 
                         drawText(
                             frame,
@@ -97,7 +100,8 @@ def inBound(pt, box):
 
 
 def draw_button(pt1, pt2, color=(220, 220, 220), color_a=(126, 225, 126)):
-    def draw(image, active):
+    def draw(image, point):
+        active = inBound(point, {"pt1": pt1, "pt2": pt2})
         cv.rectangle(image, pt1, pt2, color=(color_a if active else color), thickness=3)
 
     return draw
