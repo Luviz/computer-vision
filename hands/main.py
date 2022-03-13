@@ -5,7 +5,7 @@ import mediapipe.python.solutions.drawing_utils as mpdUtils
 
 # from hands. import HandProcessor
 from handProtocol import Processed_hands
-from handProcessor import HandProcessor
+from handProcessor import HandData, HandProcessor
 
 
 hands = HandProcessor(min_detection_confidence=0.7)
@@ -33,47 +33,24 @@ def main(cam_src=None):
             has_frame, frame = cap.read()
 
             if has_frame:
-                btn1 = draw_button((10, 10), (80, 40))
                 frame = cv.flip(frame, 1)
                 w, h, c = frame.shape
                 processed_hands = hands.proc(frame[:, :, ::-1])
-                btn1Active = False
-                # print(hands.get_handedness())
+
                 if processed_hands.multi_hand_landmarks:
                     # drawHands(processed_hands)
                     hd = hands.get_handData()
+
                     for data in hd:
-                        label = data.classification.label
-                        lm = data.landmarks
-
-                        mpdUtils.draw_landmarks(
-                            image=frame,
-                            landmark_list=data.multi_hand_landmarks,
-                            landmark_drawing_spec=None,
-                            connections=mpHands.HAND_CONNECTIONS,
-                        )
-
-                        drawLandmark(frame, lm[4], (0, 100, 200), thickness=-1)
-                        drawLandmark(frame, lm[8], (200, 100, 0), thickness=-1)
-
-                        index_finger = landmarkCoored(lm[8], w, h)
+                        drawHands(frame, data)
+                        index_finger = landmarkCoored(data.landmarks[8], w, h)
 
                         for btn in buttonArray:
                             btn(frame, index_finger)
 
-                        drawText(
-                            frame,
-                            str(index_finger),
-                            landmarkCoored(lm[4], w, h),
-                            bg_color=(0, 0, 200),
-                        )
-
-                        drawText(
-                            frame,
-                            label,
-                            landmarkCoored(lm[0], w, h),
-                            bg_color=(0, 0, 200),
-                        )
+                else:
+                    for btn in buttonArray:
+                        btn(frame, (0, 0))
 
                 cv.imshow("main", frame)
 
@@ -151,14 +128,29 @@ def drawText(
     )
 
 
-def drawHands(processed_hands: Processed_hands):
+def drawHands(frame, processed_hands: HandData):
     try:
-        # print(processed_hands._fields)
-        print("______________________________________")
-        print(processed_hands.multi_handedness)
-        # print(dir(processed_hands.multi_hand_landmarks[0]))
-        # print([d for d in dir(processed_hands.multi_hand_landmarks[0]) if "_" not in d])
-        # print([d for d in dir(processed_hands)) if "_" not in d])
+        w, h, _ = frame.shape
+        label = processed_hands.classification.label
+        lm = processed_hands.landmarks
+
+        mpdUtils.draw_landmarks(
+            image=frame,
+            landmark_list=processed_hands.multi_hand_landmarks,
+            landmark_drawing_spec=None,
+            connections=mpHands.HAND_CONNECTIONS,
+        )
+
+        drawLandmark(frame, lm[4], (0, 100, 200), thickness=-1)
+        drawLandmark(frame, lm[8], (200, 100, 0), thickness=-1)
+
+        drawText(
+            frame,
+            label,
+            landmarkCoored(lm[0], w, h),
+            bg_color=(0, 0, 200),
+        )
+
     except Exception as e:
         print("boo!", type(e))
 
