@@ -1,0 +1,51 @@
+{
+  "Open CV camera capture": {
+    "scope": "python",
+    "prefix": "!",
+    "body": [
+      "import cv2 as cv",
+      "",
+      "def main(cam_src=None):",
+      "    if cam_src == None:",
+      "        cam_src = 0",
+      "    cap = cv.VideoCapture(cam_src)",
+      "",
+      "    c = 0",
+      "    key = 0",
+      "    run = True",
+      "    try:",
+      "        while run:",
+      "            c = c + 1",
+      "            has_frame, frame = cap.read()",
+      "            if has_frame:",
+      "                cv.imshow(\"main\", frame)",
+      "",
+      "            waitKey = cv.waitKey(10)",
+      "            if waitKey > 0:",
+      "                # print(waitKey, chr(waitKey))",
+      "                if waitKey in [ord(str(i)) for i in range(10)]:",
+      "                    print(f\"{waitKey=}, {key}\")",
+      "                    key = int(chr(waitKey))",
+      "                if waitKey == ord(\"q\") or waitKey == 27:",
+      "                    run = False",
+      "",
+      "    except KeyboardInterrupt as e:",
+      "        print(\"quiting\")",
+      ""
+    ],
+    "description": "create bolierplate for open cv camera capture, with exit keys [esc , q]"
+  },
+  "Get IP cam url": {
+    "scope": "python",
+    "prefix": "ip-cam",
+    "body": [
+      "def getIPCamUrl():",
+      "    usr, pas = \"${1:aaa}\", \"${2:aaa}\"",
+      "    ip = \"192.168.${3:50.175}\"",
+      "    port = \"${4:8080}\"",
+      "    return f\"http://{usr}:{pas}@{ip}:{port}/video\"",
+      ""
+    ],
+    "description": "get video url for an ip cam"
+  }
+}
