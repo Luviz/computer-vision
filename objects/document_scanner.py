@@ -36,3 +36,11 @@ def alignSelection(img, cntr):
 
     M = cv.getPerspectiveTransform(from_points, to_points)
     return cv.warpPerspective(img, M, (width, height))
+
+
+def document_selection_preprocessing(img):
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    pipe = cv.GaussianBlur(gray, (3, 3), 5)
+    h, pipe = cv.threshold(pipe, 127, 255, cv.THRESH_BINARY)
+
+    return pipe

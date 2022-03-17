@@ -1,4 +1,5 @@
 import cv2 as cv
+import document_scanner as ds
 
 
 def main(cam_src=None):
@@ -14,7 +15,34 @@ def main(cam_src=None):
             c = c + 1
             has_frame, frame = cap.read()
             if has_frame:
-                cv.imshow("main", frame)
+                processed = ds.document_selection_preprocessing(frame)
+
+                contours, h = cv.findContours(
+                    processed, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+                )
+
+                frame_contours = cv.drawContours(
+                    frame.copy(), contours, -1, (0, 0, 200), 5
+                )
+
+                try:
+                    b = max(contours, key=cv.contourArea)
+                    # print(len(b))
+                    frame_contours = cv.drawContours(
+                        frame_contours, [b], -1, (0, 200, 0), 5
+                    )
+                    b = ds.approxContours(b, epsilon=0.1 / 10)
+                    frame_contours = cv.drawContours(
+                        frame_contours, b, -1, (200, 0, 0), 10
+                    )
+                    if len(b) == 4:
+                        document = ds.alignSelection(frame.copy(), b)
+                        cv.imshow("document", document)
+
+                except Exception as e:
+                    print(e)
+
+                cv.imshow("main", frame_contours)
 
             waitKey = cv.waitKey(10)
             if waitKey > 0:
