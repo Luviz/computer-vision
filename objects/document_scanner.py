@@ -9,7 +9,7 @@ def approxContours(cntr, epsilon=0.1):
 
 def distance(p1, p2) -> int:
     s1, s2 = np.subtract(p1, p2)
-    return round(np.sqrt(s1**2 + s2**2))
+    return round(np.sqrt(s1 ** 2 + s2 ** 2))
 
 
 def getCenter(cntr):
@@ -44,3 +44,11 @@ def document_selection_preprocessing(img):
     h, pipe = cv.threshold(pipe, 127, 255, cv.THRESH_BINARY)
 
     return pipe
+
+
+def get_smallest_index(lst: list[int]) -> int:
+    smallest_ix = 0
+    for ix, val in enumerate(lst):
+        if val < lst[smallest_ix]:
+            smallest_ix = ix
+    return smallest_ix
