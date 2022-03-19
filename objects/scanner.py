@@ -15,7 +15,7 @@ def main(cam_src=None):
             c = c + 1
             has_frame, frame = cap.read()
             if has_frame:
-                processed = ds.document_selection_preprocessing(frame)
+                processed = ds.document_selection_preprocessing(frame, 180)
 
                 contours, h = cv.findContours(
                     processed, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
@@ -35,6 +35,44 @@ def main(cam_src=None):
                     frame_contours = cv.drawContours(
                         frame_contours, b, -1, (200, 0, 0), 10
                     )
+
+                    org = (0, 0)
+                    arr = ds.reorder_point_on_closest_distance(b, org)
+
+                    cv.circle(
+                        frame_contours,
+                        org,
+                        ds.distance((0, 0), arr[0][0]),
+                        (200, 200, 200),
+                        3,
+                    )
+
+                    cv.circle(
+                        frame_contours,
+                        arr[0][0],
+                        12,
+                        (200, 0, 0),
+                        3,
+                    )
+
+                    cv.line(
+                        frame_contours,
+                        arr[0][0],
+                        arr[1][0],
+                        (200, 200, 0),
+                        5,
+                        cv.LINE_8,
+                    )
+
+                    cv.line(
+                        frame_contours,
+                        arr[0][0],
+                        arr[-1][0],
+                        (200, 0, 200),
+                        5,
+                        cv.LINE_AA,
+                    )
+
                     if len(b) == 4:
                         document = ds.alignSelection(frame.copy(), b)
                         cv.imshow("document", document)
@@ -66,5 +104,5 @@ def getIPCamUrl():
 
 if __name__ == "__main__":
     ip_cam_url = getIPCamUrl()
-    main()
-    # main(ip_cam_url)
+    # main()
+    main(ip_cam_url)
