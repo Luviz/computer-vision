@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import mediapipe.python.solutions.hands as mph
 import mediapipe.python.solutions.drawing_utils as mpdUtils
+import numpy as np
 
 from handProtocol import (
     Classification,
@@ -42,3 +43,10 @@ class HandProcessor(mph.Hands):
             )
             for ix, h in enumerate(handedness)
         ]
+
+    def get_landmark_as_np_arr(self):
+        arr = []
+        for lms in self.get_landmarks():
+            arr.append([[lm.x, lm.y] for lm in lms.landmark])
+
+        return np.array(arr)
