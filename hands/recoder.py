@@ -16,7 +16,7 @@ current_gesture = 0
 def create_folders():
     for gesture in gesture_types:
         try:
-            makedirs(f"{rootFolder}{gesture}")
+            makedirs(f"{rootFolder}/gestures/{gesture}")
         except FileExistsError:
             ...
 
