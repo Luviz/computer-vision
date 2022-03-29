@@ -13,8 +13,14 @@ print(model.summary())
 gesture_types = ["open", "close", "point", "v", "horns", "three"]
 
 
+def normalize_hand(hand: np.ndarray):
+    arr = hand - np.min(hand, axis=0)
+    return arr / np.max(arr, axis=0)
+
+
 def perdict_gesture(hand):
-    n = np.array([hand - np.min(hand, axis=0)])
+    # n = np.array([hand - np.min(hand, axis=0)])
+    n = np.array([normalize_hand(hand)])
     res = model(n)
     max_arg = np.argmax(res, axis=1)[0]
 
