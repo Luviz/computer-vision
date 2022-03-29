@@ -1,25 +1,29 @@
 # Computer Vision
 
 ## Summery
-Here my collective work, computer vision. Here you can find my work on face detection, hand gesture recognition, Object scanner and docment scanner and text extractor.
 
-## Content 
+Here my collective work, computer vision. Here you can find my work on face detection, hand gesture recognition, Object scanner and document scanner and text extractor.
 
-* Face 
-  * Face detection
+## Content
 
-* hands 
-  * hand detection 
-  * hand gesture recognition 
+- Face
 
-* objects 
-  * document scanner 
-  * document alignment
-  * object selection    
+  - Face detection
 
+- hands
 
-## run 
-``` sh
+  - hand detection
+  - hand gesture recognition
+
+- objects
+
+  - document scanner
+  - document alignment
+  - object selection
+
+## run
+
+```sh
 python -m venv ./venv
 
 source ./venv/bin/activate
