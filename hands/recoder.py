@@ -21,9 +21,14 @@ def create_folders():
             ...
 
 
+def normalize_hand(hand: np.ndarray):
+    arr = hand - np.min(hand, axis=0)
+    return arr / np.max(arr, axis=0)
+
+
 def take(hands: np.ndarray, folder_path=rootFolder):
     for hand in hands:
-        values = hand - np.min(hand, axis=0)
+        values = normalize_hand(hand)
         filename = str(len(glob(folder_path + "*"))) + ".txt"
         filepath = f"{folder_path}{filename}"
         np.savetxt(filepath, values)
