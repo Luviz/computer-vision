@@ -71,8 +71,9 @@ def approxContours(cntr, epsilon=0.1):
 
 if __name__ == "__main__":
     usr = pas = "aaa"
-    ip = "192.168.50.175"
+    # ip = "192.168.50.175"
+    ip = "192.168.251.187"
     port = "8080"
     ip_cam_url = f"http://{usr}:{pas}@{ip}:{port}/video"
-    # main()
-    main(ip_cam_url)
+    main(0)
+    # main(ip_cam_url)

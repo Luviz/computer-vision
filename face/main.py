@@ -29,14 +29,16 @@ def main(cam_src=None):
             has_frame, frame = cap.read()
 
             if has_frame:
+                h, w, _ = frame.shape
                 faces = faceDetection.process(frame[:, :, ::-1])
                 if faces and faces.detections:
                     for face in faces.detections:
                         drawFace(frame, face)
-                        # mpdUtils.draw_detection(frame, face)
+                        mpdUtils.draw_detection(frame, face)
 
                 ## last frame
                 last_frame = frame.copy()
+
             cv.imshow("main", frame)
 
             waitKey = cv.waitKey(1)
@@ -45,8 +47,8 @@ def main(cam_src=None):
                 if waitKey in [ord(str(i)) for i in range(10)]:
                     print(f"{waitKey=}, {key}")
                     key = int(chr(waitKey))
-                if waitKey == ord(1):
-                    pass
+                # if waitKey == ord(1):
+                #     pass
                 if waitKey == ord("q") or waitKey == 27:
                     run = False
 
